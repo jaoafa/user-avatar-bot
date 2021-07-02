@@ -1,0 +1,8 @@
+.idea
+images
+venv
+config.json
+linking-emoji-guild-id.json
+linking-player-uuid.json
+linking-uuid-emoji-id.json
+linking-uuid-hashes.json
