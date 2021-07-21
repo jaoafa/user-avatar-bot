@@ -198,6 +198,7 @@ def main():
     new_users = {}
     changed_users = {}
     changed_skin_users = {}
+    removed_users = list(emoji_ids.keys())
     for user in users:
         print("[INFO] Process:", user["mcid"], user["uuid"])
         isNew = False
@@ -256,7 +257,23 @@ def main():
             guilds[guild_id] = guilds[guild_id] - 1
 
         time.sleep(1)
+        if user["uuid"] in removed_users:
+            removed_users.remove(user["uuid"])
         save(data, emoji_hashes, emoji_guild_ids, emoji_ids)
+
+    for removed_uuid in removed_users:
+        print("[INFO] Removed " + removed_uuid)
+        emoji_id = emoji_ids[removed_uuid]
+        if emoji_id in emoji_guild_ids:
+            del emoji_guild_ids[emoji_id]
+
+        if removed_uuid in emoji_ids:
+            del emoji_ids[removed_uuid]
+
+        if removed_uuid in emoji_hashes:
+            del emoji_hashes[removed_uuid]
+
+    save(data, emoji_hashes, emoji_guild_ids, emoji_ids)
 
     # generateEmojiList(config)  # Javajaotan2に任せる
 
