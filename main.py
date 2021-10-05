@@ -132,7 +132,7 @@ def removeEmoji(token,
         "Content-Type": "application/json",
         "Authorization": "Bot " + token
     })
-    return response.status_code != 200
+    return response.status_code == 204
 
 
 def sendMessage(token,
