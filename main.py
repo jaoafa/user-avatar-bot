@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import time
+from argparse import ArgumentParser
 from logging.handlers import TimedRotatingFileHandler
 
 import requests
@@ -179,6 +180,40 @@ def generateEmojiList(config):
         sendMessage(token, emoji_list_channel, "\n".join(emoji_list))
 
 
+def reset():
+    logger.info("reset()")
+    config = {}
+    if os.path.exists("config.json"):
+        logger.info("loading config.json")
+        with open("config.json", "r") as f:
+            config = json.load(f)
+
+    guilds = {}
+    for guild_id in config["guild_ids"]:
+        guild_info = getGuild(config["token"], guild_id)
+        guilds[guild_id] = guild_info["emojis"]
+    logger.info("Guilds Count: %s", len(guilds))
+
+    for guild_id, emojis in guilds.items():
+        logger.info("Guild id: %s", guild_id)
+
+        for emoji in emojis:
+            print(emoji["name"])
+            removeEmoji(config["token"], guild_id, emoji["id"])
+
+    paths = [
+        "linking-player-uuid.json",
+        "linking-uuid-hashes.json",
+        "linking-emoji-guild-id.json",
+        "linking-uuid-emoji-id.json"
+    ]
+
+    for path in paths:
+        logger.info("Deleting %s", path)
+        if os.path.exists(path):
+            os.unlink(path)
+
+
 def save(data,
          emoji_hashes,
          emoji_guild_ids,
@@ -337,5 +372,13 @@ def main():
 
 logger = init_logger()
 
+parser = ArgumentParser()
+parser.add_argument("--reset", action="store_true", help="全絵文字を削除し、データをリセットします。(メイン処理は行わない)")
+
+args = parser.parse_args()
+
 if __name__ == "__main__":
-    main()
+    if args.reset:
+        reset()
+    else:
+        main()
