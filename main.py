@@ -198,8 +198,18 @@ def reset():
         logger.info("Guild id: %s", guild_id)
 
         for emoji in emojis:
-            print(emoji["name"])
-            removeEmoji(config["token"], guild_id, emoji["id"])
+            logger.info("Deleting emoji: %s", emoji["name"])
+            result = removeEmoji(config["token"], guild_id, emoji["id"])
+            if result:
+                logger.info("Delete Successful")
+            else:
+                logger.error("Delete Failed. retry after 3 sec")
+                time.sleep(3)
+                result = removeEmoji(config["token"], guild_id, emoji["id"])
+                if result:
+                    logger.info("Delete Successful")
+                else:
+                    logger.error("Delete Failed")
 
     paths = [
         "linking-player-uuid.json",
