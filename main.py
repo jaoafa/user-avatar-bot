@@ -218,46 +218,46 @@ def main():
     verified_users = get_users_from_group("verified")
     users.extend(verified_users)
 
-    logger.info("Users Count:", len(users))
+    logger.info("Users Count: %s", len(users))
 
     # Check Emojis Count
     guilds = {}
     for guild_id in config["guild_ids"]:
         guild_info = getGuild(config["token"], guild_id)
         guilds[guild_id] = len(guild_info["emojis"])
-    logger.info("Guilds Count:", len(guilds))
+    logger.info("Guilds Count: %s", len(guilds))
 
     # Get Cache Data
     data = {}  # UUID: PLAYER NAME
     if os.path.exists("linking-player-uuid.json"):
         with open("linking-player-uuid.json", "r") as f:
             data = json.load(f)
-    logger.info("PlayerUUIDLinked Count:", len(data))
+    logger.info("PlayerUUIDLinked Count: %s", len(data))
 
     emoji_hashes = {}  # UUID: Hash
     if os.path.exists("linking-uuid-hashes.json"):
         with open("linking-uuid-hashes.json", "r") as f:
             emoji_hashes = json.load(f)
-    logger.info("Emoji Hashes Count:", len(emoji_hashes))
+    logger.info("Emoji Hashes Count: %s", len(emoji_hashes))
 
     emoji_guild_ids = {}  # Emoji Id: Guild Id
     if os.path.exists("linking-emoji-guild-id.json"):
         with open("linking-emoji-guild-id.json", "r") as f:
             emoji_guild_ids = json.load(f)
-    logger.info("Emoji Guild Ids Count:", len(emoji_guild_ids))
+    logger.info("Emoji Guild Ids Count: %s", len(emoji_guild_ids))
 
     emoji_ids = {}  # UUID: Emoji Id
     if os.path.exists("linking-uuid-emoji-id.json"):
         with open("linking-uuid-emoji-id.json", "r") as f:
             emoji_ids = json.load(f)
-    logger.info("Emoji Ids Count:", len(emoji_ids))
+    logger.info("Emoji Ids Count: %s", len(emoji_ids))
 
     new_users = {}
     changed_users = {}
     changed_skin_users = {}
     removed_users = list(emoji_ids.keys())
     for user in users:
-        logger.info("Process:", user["mcid"], user["uuid"])
+        logger.info("Process: %s %s", user["mcid"], user["uuid"])
         isNew = False
         isRenamed = False
         isChanged = False
@@ -281,7 +281,7 @@ def main():
         # Download
         logger.info("-> Downloading...")
         md5 = download_minecraft_head(user["uuid"])
-        logger.info("-> MD5:", md5)
+        logger.info("-> MD5: %s", md5)
 
         # Changed skin?
         if user["uuid"] in emoji_hashes.keys() and emoji_hashes[user["uuid"]] != md5:
@@ -294,21 +294,21 @@ def main():
             emoji_id = emoji_ids[user["uuid"]]
             guild_id = emoji_guild_ids[emoji_id]
             res = removeEmoji(config["token"], guild_id, emoji_id)
-            logger.info("-> removeEmoji:", res)
+            logger.info("-> removeEmoji: %s", res)
 
         if isRenamed:
             emoji_id = emoji_ids[user["uuid"]]
             guild_id = emoji_guild_ids[emoji_id]
             res = renameEmoji(config["token"], guild_id, emoji_id, user["mcid"])
-            logger.info("-> renameEmoji:", res)
+            logger.info("-> renameEmoji: %s", res)
 
         if isNew:
             guild_id = getOpeningGuildId(guilds)
             emoji_id = addEmoji(config["token"], guild_id, user["mcid"], "images/{0}.png".format(md5))
             if emoji_id is None:
-                print("[ERROR] -> addEmoji: Failed")
+                logger.error("addEmoji: Failed")
                 return
-            logger.info("-> addEmoji:", emoji_id, " / Guild Id:", guild_id)
+            logger.info("-> addEmoji: %s / Guild Id: %s", emoji_id, guild_id)
             emoji_ids[user["uuid"]] = emoji_id
             emoji_guild_ids[emoji_id] = guild_id
             guilds[guild_id] = guilds[guild_id] - 1
