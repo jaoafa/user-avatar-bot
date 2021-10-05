@@ -210,6 +210,7 @@ def reset():
                     logger.info("Delete Successful")
                 else:
                     logger.error("Delete Failed")
+            time.sleep(1)
 
     paths = [
         "linking-player-uuid.json",
